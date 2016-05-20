@@ -4,8 +4,8 @@
 alter table country_subdivisions
   drop foreign key fk_subdiv_cntry;
 
-alter table notes
-  drop foreign key fk_note_type;
+alter table attributes
+  drop foreign key fk_attribs_type;
 
 alter table templates
   drop foreign key fk_temp_type;
@@ -22,11 +22,11 @@ alter table url_templates
 alter table url_templates
   drop foreign key fk_urltemp_temp;
 
-alter table user_notes
-  drop foreign key fk_unote_user;
+alter table user_attributes
+  drop foreign key fk_uattrib_user;
 
-alter table user_notes
-  drop foreign key fk_unote_note;
+alter table user_attributes
+  drop foreign key fk_uattrib_attrib;
 
 alter table username_aliases
   drop foreign key fk_ualias_primary;
@@ -57,7 +57,7 @@ alter table users
  */
 drop trigger if exists countries_update;
 drop trigger if exists country_subdivisions_update;
-drop trigger if exists notes_update;
+drop trigger if exists attributes_update;
 drop trigger if exists sites_update;
 drop trigger if exists statuses_update;
 drop trigger if exists templates_update;
@@ -65,7 +65,7 @@ drop trigger if exists types_update;
 drop trigger if exists types_categories_update;
 drop trigger if exists types_names_update;
 drop trigger if exists url_templates_update;
-drop trigger if exists user_notes_update;
+drop trigger if exists user_attributes_update;
 drop trigger if exists username_aliases_update;
 drop trigger if exists usernames_update;
 drop trigger if exists users_update;
@@ -75,7 +75,7 @@ drop trigger if exists users_update;
  */
 drop table if exists countries;
 drop table if exists country_subdivisions;
-drop table if exists notes;
+drop table if exists attributes;
 drop table if exists sites;
 drop table if exists statuses;
 drop table if exists templates;
@@ -83,7 +83,7 @@ drop table if exists types;
 drop table if exists types_categories;
 drop table if exists types_names;
 drop table if exists url_templates;
-drop table if exists user_notes;
+drop table if exists user_attributes;
 drop table if exists username_aliases;
 drop table if exists usernames;
 drop table if exists users;
@@ -110,9 +110,10 @@ create table country_subdivisions (
   primary key (id)
 );
 
-create table notes (
+create table attributes (
   id int not null auto_increment,
-  note varchar(1024) default null,
+  name varchar(128) default null,
+  value varchar(1024) default null,
   type_id int default null,
   created timestamp not null default current_timestamp,
   last_modified timestamp not null default '0000-00-00 00:00:00',
@@ -177,9 +178,9 @@ create table url_templates (
   last_modified timestamp not null default '0000-00-00 00:00:00'
 );
 
-create table user_notes (
+create table user_attributes (
   user_id int default null,
-  note_id int default null,
+  attribute_id int default null,
   created timestamp not null default current_timestamp,
   last_modified timestamp not null default '0000-00-00 00:00:00'
 );
@@ -222,8 +223,8 @@ alter table country_subdivisions
   on delete set null
   on update cascade;
 
-alter table notes
-  add constraint fk_note_type foreign key (type_id)
+alter table attributes
+  add constraint fk_attribs_type foreign key (type_id)
   references types (id)
   on delete set null
   on update cascade;
@@ -258,15 +259,15 @@ alter table url_templates
   on delete cascade
   on update cascade;
 
-alter table user_notes
-  add constraint fk_unote_user foreign key (user_id)
+alter table user_attributes
+  add constraint fk_uattrib_user foreign key (user_id)
   references users (id)
   on delete cascade
   on update cascade;
 
-alter table user_notes
-  add constraint fk_unote_note foreign key (note_id)
-  references notes (id)
+alter table user_attributes
+  add constraint fk_uattrib_attrib foreign key (attrib_id)
+  references attributes (id)
   on delete cascade
   on update cascade;
 
@@ -337,8 +338,8 @@ create trigger tr_country_subdivisions_update
   end
 |
 
-create trigger tr_notes_update
-  before update on notes for each row
+create trigger tr_attributes_update
+  before update on attributes for each row
   begin
     set NEW.last_modified = current_timestamp;
   end
@@ -393,8 +394,8 @@ create trigger tr_url_templates_update
   end
 |
 
-create trigger tr_user_notes_update
-  before update on user_notes for each row
+create trigger tr_user_attributes_update
+  before update on user_attributes for each row
   begin
     set NEW.last_modified = current_timestamp;
   end
